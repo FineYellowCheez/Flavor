@@ -233,24 +233,13 @@ button{
     stroke:#FFF4C4;
     stroke-width:1.7;
     stroke-linejoin:round;
-    stroke-linecap:round;
 }
 
-.loading-logo{width:30px;height:30px;display:block}
-.loading-logo svg{width:100%;height:100%;display:block;overflow:visible}
-.loading-segment{
-    transform-box:fill-box;
-    transform-origin:center;
-    animation:segmentWave 1.84s cubic-bezier(.45,0,.55,1) infinite;
-    animation-delay:var(--delay);
-    will-change:transform;
-}
-@keyframes segmentWave{
-    0%,100%{transform:translate(0,0)}
-    28%{transform:translate(var(--wave-x),var(--wave-y))}
-    56%{transform:translate(0,0)}
-}
+/* =========================================================
+   THINKING LOGO
+========================================================= */
 
+.loading-logo{width:30px;height:30px;display:block}.loading-logo svg{width:100%;height:100%;display:block;overflow:visible}.loading-segment{transform-box:fill-box;transform-origin:center;animation:segmentWave 1.15s ease-in-out infinite}.loading-segment:nth-child(1){animation-delay:0s}.loading-segment:nth-child(2){animation-delay:.08s}.loading-segment:nth-child(3){animation-delay:.16s}.loading-segment:nth-child(4){animation-delay:.24s}.loading-segment:nth-child(5){animation-delay:.32s}.loading-segment:nth-child(6){animation-delay:.40s}.loading-segment:nth-child(7){animation-delay:.48s}.loading-segment:nth-child(8){animation-delay:.56s}@keyframes segmentWave{0%,100%{transform:translate(0,0)}50%{transform:translate(var(--wave-x),var(--wave-y))}}
 
 /* =========================================================
    MAIN
@@ -358,7 +347,25 @@ button{
 }
 
 .message-flavor{
-    justify-content:flex-start;
+    flex-direction:column;
+    align-items:flex-start;
+    gap:6px;
+}
+
+.message-flavor .message-body{
+    order:1;
+    max-width:100%;
+}
+
+.message-flavor .message-avatar{
+    order:2;
+    margin-top:0;
+}
+
+.loading-avatar{
+    width:30px;
+    height:30px;
+    flex:0 0 30px;
 }
 
 .message-avatar{
@@ -1889,17 +1896,73 @@ function citrusSVG(){
     return `
 
     <svg viewBox="0 0 100 100">
-        <path class="citrus-segment" d="M50 50 L50 13 Q62.95 18.4 76.16 23.84 Z" fill="#FFE982"/>
-        <path class="citrus-segment" d="M50 50 L76.16 23.84 Q81.6 37.05 87 50 Z" fill="#FFD95A"/>
-        <path class="citrus-segment" d="M50 50 L87 50 Q81.6 62.95 76.16 76.16 Z" fill="#FFE982"/>
-        <path class="citrus-segment" d="M50 50 L76.16 76.16 Q62.95 81.6 50 87 Z" fill="#FFD95A"/>
-        <path class="citrus-segment" d="M50 50 L50 87 Q37.05 81.6 23.84 76.16 Z" fill="#FFE982"/>
-        <path class="citrus-segment" d="M50 50 L23.84 76.16 Q18.4 62.95 13 50 Z" fill="#FFD95A"/>
-        <path class="citrus-segment" d="M50 50 L13 50 Q18.4 37.05 23.84 23.84 Z" fill="#FFE982"/>
-        <path class="citrus-segment" d="M50 50 L23.84 23.84 Q37.05 18.4 50 13 Z" fill="#FFD95A"/>
-        <circle cx="50" cy="50" r="4.8" fill="#FFF4C4"/>
+
+        <path
+            class="citrus-segment"
+            d="M50 50 L50 13
+               A37 37 0 0 1 76.16 23.84 Z"
+            fill="#FFE982"/>
+
+        <path
+            class="citrus-segment"
+            d="M50 50 L76.16 23.84
+               A37 37 0 0 1 87 50 Z"
+            fill="#FFD95A"/>
+
+        <path
+            class="citrus-segment"
+            d="M50 50 L87 50
+               A37 37 0 0 1 76.16 76.16 Z"
+            fill="#FFE982"/>
+
+        <path
+            class="citrus-segment"
+            d="M50 50 L76.16 76.16
+               A37 37 0 0 1 50 87 Z"
+            fill="#FFD95A"/>
+
+        <path
+            class="citrus-segment"
+            d="M50 50 L50 87
+               A37 37 0 0 1 23.84 76.16 Z"
+            fill="#FFE982"/>
+
+        <path
+            class="citrus-segment"
+            d="M50 50 L23.84 76.16
+               A37 37 0 0 1 13 50 Z"
+            fill="#FFD95A"/>
+
+        <path
+            class="citrus-segment"
+            d="M50 50 L13 50
+               A37 37 0 0 1 23.84 23.84 Z"
+            fill="#FFE982"/>
+
+        <path
+            class="citrus-segment"
+            d="M50 50 L23.84 23.84
+               A37 37 0 0 1 50 13 Z"
+            fill="#FFD95A"/>
+
+        <circle
+            cx="50"
+            cy="50"
+            r="4.8"
+            fill="#FFF4C4"/>
+
+        <circle
+            cx="50"
+            cy="50"
+            r="45"
+            fill="none"
+            stroke="#FFD86A"
+            stroke-width="4"/>
+
     </svg>
+
     `;
+
 }
 
 
@@ -1908,30 +1971,18 @@ function citrusSVG(){
 ========================================================= */
 
 function loadingSVG(){
-
-    const segmentData=[
-        {d:"M50 50 L50 13 Q62.95 18.4 76.16 23.84 Z",dx:0,dy:-5.5},
-        {d:"M50 50 L76.16 23.84 Q81.6 37.05 87 50 Z",dx:5.5,dy:-5.5},
-        {d:"M50 50 L87 50 Q81.6 62.95 76.16 76.16 Z",dx:5.5,dy:0},
-        {d:"M50 50 L76.16 76.16 Q62.95 81.6 50 87 Z",dx:5.5,dy:5.5},
-        {d:"M50 50 L50 87 Q37.05 81.6 23.84 76.16 Z",dx:0,dy:5.5},
-        {d:"M50 50 L23.84 76.16 Q18.4 62.95 13 50 Z",dx:-5.5,dy:5.5},
-        {d:"M50 50 L13 50 Q18.4 37.05 23.84 23.84 Z",dx:-5.5,dy:0},
-        {d:"M50 50 L23.84 23.84 Q37.05 18.4 50 13 Z",dx:-5.5,dy:-5.5}
+    const paths=[
+        ['M50 50 L50 13 A37 37 0 0 1 76.16 23.84 Z','#FFE982',0,-4],
+        ['M50 50 L76.16 23.84 A37 37 0 0 1 87 50 Z','#FFD95A',2.8,-2.8],
+        ['M50 50 L87 50 A37 37 0 0 1 76.16 76.16 Z','#FFE982',4,0],
+        ['M50 50 L76.16 76.16 A37 37 0 0 1 50 87 Z','#FFD95A',2.8,2.8],
+        ['M50 50 L50 87 A37 37 0 0 1 23.84 76.16 Z','#FFE982',0,4],
+        ['M50 50 L23.84 76.16 A37 37 0 0 1 13 50 Z','#FFD95A',-2.8,2.8],
+        ['M50 50 L13 50 A37 37 0 0 1 23.84 23.84 Z','#FFE982',-4,0],
+        ['M50 50 L23.84 23.84 A37 37 0 0 1 50 13 Z','#FFD95A',-2.8,-2.8]
     ];
-
-    return `
-    <svg viewBox="0 0 100 100" aria-hidden="true">
-        ${segmentData.map((s,i)=>`
-            <path class="loading-segment citrus-segment"
-                d="${s.d}"
-                style="--wave-x:${s.dx}px;--wave-y:${s.dy}px;--delay:${i*0.115}s;"
-                fill="${i%2===0?'#FFE982':'#FFD95A'}"/>
-        `).join("")}
-        <circle cx="50" cy="50" r="4.8" fill="#FFF4C4"/>
-    </svg>`;
+    return `<svg viewBox="0 0 100 100">${paths.map((p,i)=>`<g class="loading-segment" style="--wave-x:${p[2]}px;--wave-y:${p[3]}px"><path d="${p[0]}" fill="${p[1]}" class="citrus-segment"/></g>`).join('')}<circle cx="50" cy="50" r="4.8" fill="#FFF4C4"/><circle cx="50" cy="50" r="45" fill="none" stroke="#FFD86A" stroke-width="4"/></svg>`;
 }
-
 
 
 /* =========================================================
@@ -2051,14 +2102,6 @@ function createLoadingMessage(){
 
     wrapper.innerHTML=`
 
-        <div class="message-avatar">
-
-            <div class="loading-logo">
-                ${loadingSVG()}
-            </div>
-
-        </div>
-
         <div class="message-body">
 
             <div class="thinking">
@@ -2069,6 +2112,12 @@ function createLoadingMessage(){
 
             </div>
 
+        </div>
+
+        <div class="message-avatar loading-avatar">
+            <div class="loading-logo">
+                ${loadingSVG()}
+            </div>
         </div>
 
     `;
@@ -2519,8 +2568,8 @@ function addFlavorMessage(text){
     body.appendChild(content);
     body.appendChild(actions);
 
-    wrapper.appendChild(avatar);
     wrapper.appendChild(body);
+    wrapper.appendChild(avatar);
 
     document
         .getElementById("messages")
