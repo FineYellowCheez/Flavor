@@ -249,34 +249,33 @@ button{
     width:100%;
     height:100%;
     display:block;
+    overflow:visible;
 }
 
+/* Each animated item is a COMPLETE, thick citrus segment.
+   The whole segment moves radially; it is not just a separator. */
 .loading-segment{
     transform-box:fill-box;
-    transform-origin:center;
-    animation:segmentWave 1.35s cubic-bezier(.45,0,.55,1) infinite;
-    will-change:transform,opacity;
+    transform-origin:50% 50%;
+    animation:segmentWave 1.6s cubic-bezier(.45,0,.55,1) infinite;
+    will-change:transform;
 }
 
 .loading-segment:nth-child(1){animation-delay:0s}
-.loading-segment:nth-child(2){animation-delay:.09s}
-.loading-segment:nth-child(3){animation-delay:.18s}
-.loading-segment:nth-child(4){animation-delay:.27s}
-.loading-segment:nth-child(5){animation-delay:.36s}
-.loading-segment:nth-child(6){animation-delay:.45s}
-.loading-segment:nth-child(7){animation-delay:.54s}
-.loading-segment:nth-child(8){animation-delay:.63s}
+.loading-segment:nth-child(2){animation-delay:.11s}
+.loading-segment:nth-child(3){animation-delay:.22s}
+.loading-segment:nth-child(4){animation-delay:.33s}
+.loading-segment:nth-child(5){animation-delay:.44s}
+.loading-segment:nth-child(6){animation-delay:.55s}
+.loading-segment:nth-child(7){animation-delay:.66s}
+.loading-segment:nth-child(8){animation-delay:.77s}
 
 @keyframes segmentWave{
-
     0%,100%{
         transform:translate(0,0);
-        opacity:1;
     }
-
-    50%{
+    45%,55%{
         transform:translate(var(--wave-x),var(--wave-y));
-        opacity:.82;
     }
 }
 
@@ -1993,58 +1992,53 @@ function citrusSVG(){
 
 function loadingSVG(){
 
-    /* Rounded radial segments that slide toward the center
-       and back outward in a sequential wave. */
+    /*
+       Eight COMPLETE citrus wedges.
+       Each wedge is a thick rounded capsule, with a clearly rounded
+       outside end. The entire wedge moves outward and back inward.
+    */
 
     const segments=[
-        [50,50,50,14,0,7],
-        [50,50,76,24,-5.5,5.5],
-        [50,50,86,50,-7,0],
-        [50,50,76,76,-5.5,-5.5],
-        [50,50,50,86,0,-7],
-        [50,50,24,76,5.5,-5.5],
-        [50,50,14,50,7,0],
-        [50,50,24,24,5.5,5.5]
+        {x:50,y:50,ex:50,ey:14,dx:0,dy:-7},
+        {x:50,y:50,ex:76,ey:24,dx:5,dy:-5},
+        {x:50,y:50,ex:86,ey:50,dx:7,dy:0},
+        {x:50,y:50,ex:76,ey:76,dx:5,dy:5},
+        {x:50,y:50,ex:50,ey:86,dx:0,dy:7},
+        {x:50,y:50,ex:24,ey:76,dx:-5,dy:5},
+        {x:50,y:50,ex:14,ey:50,dx:-7,dy:0},
+        {x:50,y:50,ex:24,ey:24,dx:-5,dy:-5}
     ];
 
     return `
-
     <svg viewBox="0 0 100 100" aria-hidden="true">
-
-        ${segments.map((s,i)=>`
-
+        ${segments.map(s=>`
             <g
                 class="loading-segment"
-                style="
-                    --wave-x:${s[4]}px;
-                    --wave-y:${s[5]}px;
-                ">
+                style="--wave-x:${s.dx}px;--wave-y:${s.dy}px;">
 
+                <!-- The thick stroke IS the segment. Both ends are round. -->
                 <line
-                    x1="${s[0]}"
-                    y1="${s[1]}"
-                    x2="${s[2]}"
-                    y2="${s[3]}"
+                    x1="${s.x}"
+                    y1="${s.y}"
+                    x2="${s.ex}"
+                    y2="${s.ey}"
                     stroke="#FFD95A"
-                    stroke-width="10"
+                    stroke-width="13"
                     stroke-linecap="round"
                     stroke-linejoin="round"/>
 
             </g>
-
         `).join("")}
 
         <circle
             cx="50"
             cy="50"
-            r="5"
+            r="5.5"
             fill="#FFF4C4"/>
-
     </svg>
-
     `;
-
 }
+
 
 
 
