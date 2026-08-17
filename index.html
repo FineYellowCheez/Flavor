@@ -553,6 +553,19 @@ button{
    COMPOSER
 ========================================================= */
 
+.main.home-state .input-wrapper{
+    position:absolute;
+    top:calc(50% + 42px);
+    bottom:auto;
+    transform:translateY(-50%);
+    padding:20px;
+    background:transparent;
+}
+
+.main.home-state .disclaimer{
+    margin-top:7px;
+}
+
 .input-wrapper{
     position:absolute;
     left:0;
@@ -1260,77 +1273,7 @@ button{
 
             <div class="empty-state" id="emptyState">
 
-                <div class="empty-logo">
-
-                    <svg viewBox="0 0 100 100">
-
-                        <path
-                            class="citrus-segment"
-                            d="M50 50 L50 13
-                               A37 37 0 0 1 76.16 23.84 Z"
-                            fill="#FFE982"/>
-
-                        <path
-                            class="citrus-segment"
-                            d="M50 50 L76.16 23.84
-                               A37 37 0 0 1 87 50 Z"
-                            fill="#FFD95A"/>
-
-                        <path
-                            class="citrus-segment"
-                            d="M50 50 L87 50
-                               A37 37 0 0 1 76.16 76.16 Z"
-                            fill="#FFE982"/>
-
-                        <path
-                            class="citrus-segment"
-                            d="M50 50 L76.16 76.16
-                               A37 37 0 0 1 50 87 Z"
-                            fill="#FFD95A"/>
-
-                        <path
-                            class="citrus-segment"
-                            d="M50 50 L50 87
-                               A37 37 0 0 1 23.84 76.16 Z"
-                            fill="#FFE982"/>
-
-                        <path
-                            class="citrus-segment"
-                            d="M50 50 L23.84 76.16
-                               A37 37 0 0 1 13 50 Z"
-                            fill="#FFD95A"/>
-
-                        <path
-                            class="citrus-segment"
-                            d="M50 50 L13 50
-                               A37 37 0 0 1 23.84 23.84 Z"
-                            fill="#FFE982"/>
-
-                        <path
-                            class="citrus-segment"
-                            d="M50 50 L23.84 23.84
-                               A37 37 0 0 1 50 13 Z"
-                            fill="#FFD95A"/>
-
-                        <circle
-                            cx="50"
-                            cy="50"
-                            r="4.8"
-                            fill="#FFF4C4"/>
-
-                        <circle
-                            cx="50"
-                            cy="50"
-                            r="45"
-                            fill="none"
-                            stroke="#FFD86A"
-                            stroke-width="4"/>
-
-                    </svg>
-
-                </div>
-
-                <div class="empty-title">
+                <div class="empty-title" id="homePhrase">
                     What are you cooking?
                 </div>
 
@@ -2071,6 +2014,25 @@ function toggleSidebar(){
    NEW CHAT
 ========================================================= */
 
+const homePhrases=[
+    "What are we cooking?",
+    "What is on the menu?",
+    "What are you craving?",
+    "What should we make?",
+    "What can Flavor cook up?",
+    "What is in your kitchen?",
+    "Ready to cook something?",
+    "What are you in the mood for?"
+];
+
+function randomHomePhrase(){
+    return homePhrases[Math.floor(Math.random()*homePhrases.length)];
+}
+
+function setHomeState(active){
+    document.querySelector(".main")?.classList.toggle("home-state",active);
+}
+
 function startNewChat(){
 
     currentChatId=null;
@@ -2083,12 +2045,8 @@ function startNewChat(){
         <div class="empty-state"
              id="emptyState">
 
-            <div class="empty-logo">
-                ${citrusSVG()}
-            </div>
-
             <div class="empty-title">
-                What are you cooking?
+                ${randomHomePhrase()}
             </div>
 
             <div class="empty-subtitle">
@@ -2114,6 +2072,8 @@ function startNewChat(){
 ========================================================= */
 
 function addUserMessage(text){
+
+    setHomeState(false);
 
     const empty=
         document.getElementById(
@@ -3217,6 +3177,7 @@ function loadChat(id){
     if(!chat) return;
 
     currentChatId=chat.id;
+    setHomeState(false);
     messages=Array.isArray(chat.messages)?[...chat.messages]:[];
 
     const container=document.getElementById("messages");
@@ -3248,7 +3209,8 @@ function deleteChat(id){
         currentChatId=null;
         messages=[];
         const container=document.getElementById("messages");
-        container.innerHTML=`<div class="empty-state" id="emptyState"><div class="empty-logo">${citrusSVG()}</div><div class="empty-title">What are you cooking?</div><div class="empty-subtitle">Ask Flavor anything about food, cooking, recipes, or your kitchen.</div></div>`;
+        setHomeState(true);
+        container.innerHTML=`<div class="empty-state" id="emptyState"><div class="empty-title">${randomHomePhrase()}</div><div class="empty-subtitle">Ask Flavor anything about food, cooking, recipes, or your kitchen.</div></div>`;
     }
 
     renderChatList();
@@ -3584,6 +3546,10 @@ messageInput.focus();
 
 
 renderChatList();
+setHomeState(true);
+const hp=document.getElementById("homePhrase");
+if(hp) hp.textContent=randomHomePhrase();
+
 </script>
 
 </body>
