@@ -165,6 +165,72 @@ button{
 }
 
 /* =========================================================
+   CHAT LIST
+========================================================= */
+
+.chat-list{
+    margin-top:7px;
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+    max-height:calc(100vh - 360px);
+    overflow-y:auto;
+    padding:0 2px;
+}
+
+.chat-list:empty{display:none;}
+
+.chat-list-item{
+    display:flex;
+    align-items:center;
+    gap:4px;
+    min-height:38px;
+    border-radius:9px;
+    color:#aaa;
+}
+
+.chat-list-item:hover{background:var(--hover);color:#fff;}
+
+.chat-list-open{
+    flex:1;
+    min-width:0;
+    border:0;
+    background:transparent;
+    color:inherit;
+    text-align:left;
+    padding:8px 9px;
+    cursor:pointer;
+    overflow:hidden;
+    white-space:nowrap;
+    text-overflow:ellipsis;
+    font-size:13px;
+}
+
+.chat-delete{
+    width:30px;
+    height:30px;
+    flex:0 0 30px;
+    border:0;
+    background:transparent;
+    color:#777;
+    border-radius:7px;
+    cursor:pointer;
+    display:grid;
+    place-items:center;
+    margin-right:3px;
+}
+
+.chat-delete:hover{background:#333;color:#fff;}
+
+.chat-list-empty{
+    color:#666;
+    font-size:12px;
+    padding:10px 9px;
+}
+
+.sidebar.collapsed .chat-list{display:none;}
+
+/* =========================================================
    GOOGLE
 ========================================================= */
 
@@ -1056,6 +1122,8 @@ button{
 
         </nav>
 
+        <div class="chat-list" id="chatList"></div>
+
     </div>
 
 
@@ -1870,6 +1938,7 @@ Above all, be useful.
 let messages=[];
 let recipes=[];
 let isGenerating=false;
+let currentChatId=null;
 
 try{
 
@@ -1972,14 +2041,14 @@ function citrusSVG(){
 
 function loadingSVG(){
     const paths=[
-        ['M50 50 L50 13 A37 37 0 0 1 76.16 23.84 Z','#FFE982',0,-7],
-        ['M50 50 L76.16 23.84 A37 37 0 0 1 87 50 Z','#FFD95A',5,-5],
-        ['M50 50 L87 50 A37 37 0 0 1 76.16 76.16 Z','#FFE982',7,0],
-        ['M50 50 L76.16 76.16 A37 37 0 0 1 50 87 Z','#FFD95A',5,5],
-        ['M50 50 L50 87 A37 37 0 0 1 23.84 76.16 Z','#FFE982',0,7],
-        ['M50 50 L23.84 76.16 A37 37 0 0 1 13 50 Z','#FFD95A',-5,5],
-        ['M50 50 L13 50 A37 37 0 0 1 23.84 23.84 Z','#FFE982',-7,0],
-        ['M50 50 L23.84 23.84 A37 37 0 0 1 50 13 Z','#FFD95A',-5,-5]
+        ['M50 50 L50 13 A37 37 0 0 1 76.16 23.84 Z','#FFE982',0,-4],
+        ['M50 50 L76.16 23.84 A37 37 0 0 1 87 50 Z','#FFD95A',2.8,-2.8],
+        ['M50 50 L87 50 A37 37 0 0 1 76.16 76.16 Z','#FFE982',4,0],
+        ['M50 50 L76.16 76.16 A37 37 0 0 1 50 87 Z','#FFD95A',2.8,2.8],
+        ['M50 50 L50 87 A37 37 0 0 1 23.84 76.16 Z','#FFE982',0,4],
+        ['M50 50 L23.84 76.16 A37 37 0 0 1 13 50 Z','#FFD95A',-2.8,2.8],
+        ['M50 50 L13 50 A37 37 0 0 1 23.84 23.84 Z','#FFE982',-4,0],
+        ['M50 50 L23.84 23.84 A37 37 0 0 1 50 13 Z','#FFD95A',-2.8,-2.8]
     ];
     return `<svg viewBox="0 0 100 100">${paths.map((p,i)=>`<g class="loading-segment" style="--wave-x:${p[2]}px;--wave-y:${p[3]}px"><path d="${p[0]}" fill="${p[1]}" class="citrus-segment"/></g>`).join('')}<circle cx="50" cy="50" r="4.8" fill="#FFF4C4"/><circle cx="50" cy="50" r="45" fill="none" stroke="#FFD86A" stroke-width="4"/></svg>`;
 }
@@ -2004,6 +2073,7 @@ function toggleSidebar(){
 
 function startNewChat(){
 
+    currentChatId=null;
     messages=[];
 
     document
@@ -2029,6 +2099,8 @@ function startNewChat(){
         </div>
 
         `;
+
+    renderChatList();
 
     document
         .getElementById("messageInput")
@@ -3043,57 +3115,143 @@ function performSearch(){
 }
 
 
-function saveChat(){
-
-    if(!messages.length){
-        return;
-    }
-
-    const firstUser=
-        messages.find(
-            x=>x.role==="user"
-        );
-
-    if(!firstUser){
-        return;
-    }
-
-    let chats=[];
+function getStoredChats(){
 
     try{
+        return JSON.parse(
+            localStorage.getItem("flavor_chats")||"[]"
+        );
+    }catch{
+        return [];
+    }
 
-        chats=
-            JSON.parse(
-                localStorage.getItem(
-                    "flavor_chats"
-                )||"[]"
-            );
+}
 
-    }catch{}
+function renderChatList(){
 
-    chats.unshift({
+    const list=document.getElementById("chatList");
+    if(!list) return;
 
-        id:Date.now(),
+    const chats=getStoredChats();
+    list.innerHTML="";
 
-        title:
-            firstUser.content.substring(
-                0,
-                50
-            ),
+    if(!chats.length){
+        list.innerHTML=`<div class="chat-list-empty">No chats yet</div>`;
+        return;
+    }
 
-        preview:
-            firstUser.content,
+    chats.forEach(chat=>{
 
-        messages
+        const row=document.createElement("div");
+        row.className="chat-list-item";
+
+        const open=document.createElement("button");
+        open.className="chat-list-open";
+        open.textContent=chat.title||"Untitled chat";
+        open.title=chat.title||"Untitled chat";
+        open.onclick=()=>loadChat(chat.id);
+
+        const del=document.createElement("button");
+        del.className="chat-delete";
+        del.title="Delete chat";
+        del.setAttribute("aria-label","Delete chat");
+        del.innerHTML=`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M6 7l1 14h10l1-14"/><path d="M9 7V4h6v3"/></svg>`;
+        del.onclick=(event)=>{
+            event.stopPropagation();
+            deleteChat(chat.id);
+        };
+
+        row.appendChild(open);
+        row.appendChild(del);
+        list.appendChild(row);
 
     });
 
+}
+
+function saveChat(){
+
+    if(!messages.length) return;
+
+    const firstUser=messages.find(x=>x.role==="user");
+    if(!firstUser) return;
+
+    let chats=getStoredChats();
+
+    if(!currentChatId){
+        currentChatId=Date.now();
+        chats.unshift({
+            id:currentChatId,
+            title:firstUser.content.substring(0,50),
+            preview:firstUser.content,
+            messages:[...messages]
+        });
+    }else{
+        const existing=chats.find(x=>x.id===currentChatId);
+        if(existing){
+            existing.title=firstUser.content.substring(0,50);
+            existing.preview=firstUser.content;
+            existing.messages=[...messages];
+        }else{
+            chats.unshift({
+                id:currentChatId,
+                title:firstUser.content.substring(0,50),
+                preview:firstUser.content,
+                messages:[...messages]
+            });
+        }
+    }
+
     localStorage.setItem(
         "flavor_chats",
-        JSON.stringify(
-            chats.slice(0,100)
-        )
+        JSON.stringify(chats.slice(0,100))
     );
+
+    renderChatList();
+
+}
+
+function loadChat(id){
+
+    const chat=getStoredChats().find(x=>x.id===id);
+    if(!chat) return;
+
+    currentChatId=chat.id;
+    messages=Array.isArray(chat.messages)?[...chat.messages]:[];
+
+    const container=document.getElementById("messages");
+    container.innerHTML="";
+
+    if(!messages.length){
+        startNewChat();
+        return;
+    }
+
+    messages.forEach(message=>{
+        if(message.role==="user"){
+            addUserMessage(message.content);
+        }else if(message.role==="assistant"){
+            addFlavorMessage(message.content,false);
+        }
+    });
+
+    scrollToBottom();
+
+}
+
+function deleteChat(id){
+
+    const chats=getStoredChats().filter(chat=>chat.id!==id);
+    localStorage.setItem("flavor_chats",JSON.stringify(chats));
+
+    if(currentChatId===id){
+        currentChatId=null;
+        messages=[];
+        const container=document.getElementById("messages");
+        container.innerHTML=`<div class="empty-state" id="emptyState"><div class="empty-logo">${citrusSVG()}</div><div class="empty-title">What are you cooking?</div><div class="empty-subtitle">Ask Flavor anything about food, cooking, recipes, or your kitchen.</div></div>`;
+    }
+
+    renderChatList();
 
 }
 
@@ -3423,6 +3581,9 @@ loadSettingsIntoUI();
 
 messageInput.focus();
 
+
+
+renderChatList();
 </script>
 
 </body>
